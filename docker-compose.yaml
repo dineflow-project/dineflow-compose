@@ -2,17 +2,17 @@ version: "3.7"
 
 services:
   # api gateway --------------------------------------------------
-  # api-gateway:
-  #   container_name: api-gateway
-  #   build:
-  #     context: ../dineflow-api-gateway
-  #     dockerfile: ../dineflow-api-gateway/api.Dockerfile
-  #   ports:
-  #     - "8000:8000"
-  #   networks:
-  #     - api-gateway_network
-  #   env_file:
-  #     - ../dineflow-api-gateway/.env
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ../dineflow-api-gateway
+      dockerfile: ../dineflow-api-gateway/api.Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - dineflow_network
+    env_file:
+      - ../dineflow-api-gateway/.env
 
   # menu service --------------------------------------------------
   menu_db:
