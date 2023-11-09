@@ -13,12 +13,23 @@ services:
       - dineflow_network
     env_file:
       - ../dineflow-api-gateway/.env
+  user_db:
+    container_name: "user_service_db"
+    image: mongo
+    networks:
+      - dineflow_network
+    restart: on-failure
+    ports:
+      - "27018:27017"
+    env_file:
+      - ../dineflow-api-gateway/.env
+    volumes:
+      - user_database:/data/db
 
   # menu service --------------------------------------------------
   menu_db:
     container_name: "menu_services_db"
     hostname: "menu_services_db"
-    platform: linux/x86_64
     build:
       context: ../dineflow-menu-service
       dockerfile: ../dineflow-menu-service/db.Dockerfile
@@ -155,4 +166,6 @@ volumes:
   order_database:
   #review
   review_database:
+  #user
+  user_database:
 
