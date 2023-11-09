@@ -1,0 +1,148 @@
+version: "3.7"
+
+services:
+  # menu service --------------------------------------------------
+  menu_db:
+    container_name: "menu_services_db"
+    hostname: "menu_services_db"
+    platform: linux/x86_64
+    build:
+      context: ../dineflow-menu-service
+      dockerfile: ../dineflow-menu-service/db.Dockerfile
+    networks:
+      - menu_network
+    ports:
+      - "3306:3306"
+    env_file:
+      - ../dineflow-menu-service/.env
+
+    volumes:
+      - menu_database:/var/lib/mysql
+  menu_api:
+    container_name: "menu_services_api"
+    build:
+      context: ../dineflow-menu-service
+      dockerfile: ../dineflow-menu-service/api.Dockerfile
+    restart: on-failure
+    networks:
+      - menu_network
+    ports:
+      - "8090:8090"
+    depends_on:
+      - menu_db
+    env_file:
+          - ../dineflow-menu-service/.env
+    volumes:
+      - menu_api:/usr/src/app/
+
+  # noti service --------------------------------------------------
+  noti_mongodb:
+    container_name: "noti_services_mongodb"
+    image: mongo
+    networks:
+      - noti_network
+    ports:
+      - "27017:27017"
+    env_file:
+      - ../dineflow-notification-service/.env
+    volumes:
+      - noti_mongodb:/data/db
+  noti_rabbit:
+    container_name: "noti_services_rabbitmq"
+    image: rabbitmq:management
+    networks:
+      - noti_network
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ../dineflow-notification-service/.env
+    volumes:
+      - noti_rabbitmq:/var/lib/rabbitmq
+  noti_api:
+    container_name: "noti_services_api"
+    build:
+      context: ../dineflow-notification-service
+      dockerfile: ../dineflow-notification-service/api.Dockerfile
+    ports:
+      - "8093:8093"
+    networks:
+      - noti_network
+    depends_on:
+      - noti_mongodb
+      - noti_rabbit
+    env_file:
+      - ../dineflow-notification-service/.env
+    restart: on-failure
+
+  # order service --------------------------------------------------
+  order_api:
+    container_name: "order_services_api"
+    build:
+      context: ../dineflow-order-service
+      dockerfile: ../dineflow-order-service/api.Dockerfile 
+    ports:
+      - "8080:8080"
+    networks:
+      - order_network
+    env_file:
+      - ../dineflow-order-service/.env
+
+  order_db:
+    container_name: "order_services_db"
+    image: mongo:4.4.6
+    networks:
+      - order_network
+    restart: always
+    ports:
+      - "27019:27017"
+    env_file:
+      - ../dineflow-order-service/.env
+
+    volumes:
+      - order_database:/data/db 
+
+  # review service --------------------------------------------------
+  review_api:
+    container_name: "review_services_api"
+    build:
+      context: ../dineflow-review-service
+      dockerfile: ../dineflow-review-service/api.Dockerfile
+    ports:
+      - "8091:8091"
+    networks:
+      - review_network
+    env_file:
+      - ../dineflow-review-service/.env
+
+  review_db:
+    container_name: "review_services_db"
+    image: mongo
+    networks:
+      - review_network
+    restart: always
+    ports:
+      - "27016:27017"
+    env_file:
+      - ../dineflow-review-service/.env
+    volumes:
+      - review_database:/data/db
+
+networks:
+  menu_network:
+  noti_network:
+  order_network:
+  review_network:
+
+volumes:
+  #menu
+  menu_database:
+  menu_api:
+  #noti
+  noti_mongodb:
+  noti_rabbitmq:
+  #order
+  order_database:
+  #review
+  review_database:
+
