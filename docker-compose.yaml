@@ -1,6 +1,19 @@
 version: "3.7"
 
 services:
+  # api gateway --------------------------------------------------
+  # api-gateway:
+  #   container_name: api-gateway
+  #   build:
+  #     context: ../dineflow-api-gateway
+  #     dockerfile: ../dineflow-api-gateway/api.Dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - api-gateway_network
+  #   env_file:
+  #     - ../dineflow-api-gateway/.env
+
   # menu service --------------------------------------------------
   menu_db:
     container_name: "menu_services_db"
@@ -10,7 +23,7 @@ services:
       context: ../dineflow-menu-service
       dockerfile: ../dineflow-menu-service/db.Dockerfile
     networks:
-      - menu_network
+      - dineflow_network
     ports:
       - "3306:3306"
     env_file:
@@ -25,7 +38,7 @@ services:
       dockerfile: ../dineflow-menu-service/api.Dockerfile
     restart: on-failure
     networks:
-      - menu_network
+      - dineflow_network
     ports:
       - "8090:8090"
     depends_on:
@@ -40,7 +53,7 @@ services:
     container_name: "noti_services_mongodb"
     image: mongo
     networks:
-      - noti_network
+      - dineflow_network
     ports:
       - "27017:27017"
     env_file:
@@ -51,7 +64,7 @@ services:
     container_name: "noti_services_rabbitmq"
     image: rabbitmq:management
     networks:
-      - noti_network
+      - dineflow_network
     ports:
       - 5672:5672
       - 15672:15672
@@ -67,7 +80,7 @@ services:
     ports:
       - "8093:8093"
     networks:
-      - noti_network
+      - dineflow_network
     depends_on:
       - noti_mongodb
       - noti_rabbit
@@ -84,7 +97,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - order_network
+      - dineflow_network
     env_file:
       - ../dineflow-order-service/.env
 
@@ -92,7 +105,7 @@ services:
     container_name: "order_services_db"
     image: mongo:4.4.6
     networks:
-      - order_network
+      - dineflow_network
     restart: always
     ports:
       - "27019:27017"
@@ -111,7 +124,7 @@ services:
     ports:
       - "8091:8091"
     networks:
-      - review_network
+      - dineflow_network
     env_file:
       - ../dineflow-review-service/.env
 
@@ -119,7 +132,7 @@ services:
     container_name: "review_services_db"
     image: mongo
     networks:
-      - review_network
+      - dineflow_network
     restart: always
     ports:
       - "27016:27017"
@@ -129,10 +142,7 @@ services:
       - review_database:/data/db
 
 networks:
-  menu_network:
-  noti_network:
-  order_network:
-  review_network:
+  dineflow_network:
 
 volumes:
   #menu
