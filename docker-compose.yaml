@@ -50,8 +50,8 @@ services:
     restart: on-failure
     networks:
       - dineflow_network
-    ports:
-      - "8090:8090"
+    expose:
+      - 8090
     depends_on:
       - menu_db
     env_file:
@@ -88,8 +88,8 @@ services:
     build:
       context: ../dineflow-notification-service
       dockerfile: ../dineflow-notification-service/api.Dockerfile
-    ports:
-      - "8093:8093"
+    expose:
+      - 8093
     networks:
       - dineflow_network
     depends_on:
@@ -105,8 +105,8 @@ services:
     build:
       context: ../dineflow-order-service
       dockerfile: ../dineflow-order-service/api.Dockerfile 
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     networks:
       - dineflow_network
     env_file:
@@ -132,8 +132,8 @@ services:
     build:
       context: ../dineflow-review-service
       dockerfile: ../dineflow-review-service/api.Dockerfile
-    ports:
-      - "8091:8091"
+    expose:
+      - 8091
     networks:
       - dineflow_network
     env_file:
