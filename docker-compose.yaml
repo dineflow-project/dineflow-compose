@@ -1,6 +1,18 @@
 version: "3.7"
 
 services:
+  # frontend --------------------------------------------------
+  frontend:
+    container_name: frontend
+    build:
+      context: ../dineflow-frontend
+      dockerfile: ../dineflow-frontend/api.Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - dineflow_network
+    restart: on-failure
+
   # api gateway --------------------------------------------------
   api-gateway:
     container_name: api-gateway
@@ -13,18 +25,20 @@ services:
       - dineflow_network
     env_file:
       - ../dineflow-api-gateway/.env
+    restart: on-failure
+    
   user_db:
     container_name: "user_service_db"
     image: mongo
     networks:
       - dineflow_network
-    restart: on-failure
     ports:
       - "27018:27017"
     env_file:
       - ../dineflow-api-gateway/.env
     volumes:
       - user_database:/data/db
+    restart: on-failure
 
   # menu service --------------------------------------------------
   menu_db:
@@ -42,12 +56,13 @@ services:
 
     volumes:
       - menu_database:/var/lib/mysql
+    restart: on-failure
+    
   menu_api:
     container_name: "menu_services_api"
     build:
       context: ../dineflow-menu-service
       dockerfile: ../dineflow-menu-service/api.Dockerfile
-    restart: on-failure
     networks:
       - dineflow_network
     expose:
@@ -58,6 +73,7 @@ services:
           - ../dineflow-menu-service/.env
     volumes:
       - menu_api:/usr/src/app/
+    restart: on-failure
 
   # noti service --------------------------------------------------
   noti_mongodb:
@@ -71,6 +87,8 @@ services:
       - ../dineflow-notification-service/.env
     volumes:
       - noti_mongodb:/data/db
+    restart: on-failure
+    
   noti_rabbit:
     container_name: "noti_services_rabbitmq"
     image: rabbitmq:management
@@ -83,6 +101,8 @@ services:
       - ../dineflow-notification-service/.env
     volumes:
       - noti_rabbitmq:/var/lib/rabbitmq
+    restart: on-failure
+    
   noti_api:
     container_name: "noti_services_api"
     build:
@@ -111,20 +131,21 @@ services:
       - dineflow_network
     env_file:
       - ../dineflow-order-service/.env
+    restart: on-failure
+    
 
   order_db:
     container_name: "order_services_db"
     image: mongo:4.4.6
     networks:
       - dineflow_network
-    restart: always
     ports:
       - "27019:27017"
     env_file:
       - ../dineflow-order-service/.env
-
     volumes:
-      - order_database:/data/db 
+      - order_database:/data/db
+    restart: on-failure
 
   # review service --------------------------------------------------
   review_api:
@@ -138,20 +159,21 @@ services:
       - dineflow_network
     env_file:
       - ../dineflow-review-service/.env
+    restart: on-failure
 
   review_db:
     container_name: "review_services_db"
     image: mongo
     networks:
       - dineflow_network
-    restart: always
     ports:
       - "27016:27017"
     env_file:
       - ../dineflow-review-service/.env
     volumes:
       - review_database:/data/db
-
+    restart: on-failure
+    
 networks:
   dineflow_network:
 
